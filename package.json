@@ -1,0 +1,28 @@
+{
+  "name": "ct-project-tree",
+  "version": "0.1.10",
+  "description": "在 Codex 原生侧栏加入可折叠的多级项目树，点击条目打开原有会话。",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "apply": "node scripts/sidebar.mjs apply",
+    "remove": "node scripts/sidebar.mjs remove",
+    "status": "node scripts/sidebar.mjs status"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "keywords": ["codex-tweaks-package", "codex-tweaks-layout"],
+  "dependencies": {},
+  "devDependencies": {
+    "esbuild": "0.25.9"
+  },
+  "codexTweaks": {
+    "apiVersion": 3,
+    "entrypoints": {
+      "renderer": "src/index.js"
+    },
+    "priority": 100,
+    "packageDependencies": {}
+  }
+}

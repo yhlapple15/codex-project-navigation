@@ -1,0 +1,350 @@
+[data-codex-tweaks-project-tree-hide-native] {
+  display: none !important;
+}
+
+.ctpt-panel {
+  --ctpt-row-height: var(--height-token-row, 30px);
+  --ctpt-row-padding: var(--padding-row-cell-x, var(--padding-row-x, 8px));
+  --ctpt-icon-size: var(--icon-leading-size, 16px);
+  --ctpt-label-inset: calc(var(--ctpt-row-padding) * 2 + var(--ctpt-icon-size));
+  --ctpt-hover: var(--color-background-secondary-ghost-hover, var(--color-token-list-hover-background, color-mix(in srgb, currentColor 6%, transparent)));
+  margin-inline: var(--padding-row-x, 8px);
+  min-width: 0;
+  flex: 0 0 auto;
+  font-family: inherit;
+  font-size: var(--text-base, 14px);
+  font-weight: inherit;
+  line-height: 1.5;
+  color: var(--color-text, inherit);
+}
+
+.ctpt-panel [hidden] {
+  display: none !important;
+}
+
+.ctpt-panel .ctpt-heading {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 var(--ctpt-row-padding) var(--spacing-nav-row-gap, 1px);
+  color: var(--color-text-tertiary, var(--color-token-description-foreground, inherit));
+}
+
+.ctpt-panel h2 {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font: inherit;
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.ctpt-panel :is(button, summary) {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.ctpt-panel .ctpt-section-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  width: calc(100% + 4px);
+  margin-inline-start: -4px;
+  padding: 2px 4px;
+  border-radius: var(--radius-md, 8px);
+  text-align: start;
+}
+
+.ctpt-panel .ctpt-icon {
+  display: block;
+  flex: none;
+  width: var(--ctpt-icon-size);
+  height: var(--ctpt-icon-size);
+  pointer-events: none;
+}
+
+.ctpt-panel .ctpt-section-toggle[aria-expanded="false"] .ctpt-icon {
+  transform: rotate(-90deg);
+}
+
+.ctpt-panel .ctpt-icon-button {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border-radius: var(--radius-md, 8px);
+}
+
+.ctpt-panel .ctpt-project-shell {
+  position: relative;
+}
+
+.ctpt-panel .ctpt-project-shell > details > summary {
+  padding-inline-end: calc(var(--ctpt-row-padding) + 24px);
+}
+
+.ctpt-panel .ctpt-project-shell.ctpt-two-actions > details > summary {
+  padding-inline-end: calc(var(--ctpt-row-padding) + 48px);
+}
+
+.ctpt-panel .ctpt-project-actions {
+  display: flex;
+  position: absolute;
+  inset-block-start: calc((var(--ctpt-row-height) - 24px) / 2);
+  inset-inline-end: var(--ctpt-row-padding);
+  color: var(--color-text-tertiary, inherit);
+}
+
+.ctpt-panel .ctpt-project-actions button:hover,
+.ctpt-panel .ctpt-project-actions button:focus-visible {
+  color: var(--color-text, inherit);
+}
+
+@media (hover: hover) {
+  .ctpt-panel .ctpt-heading:not(:hover, :focus-within) .ctpt-organizer-toggle:not([aria-expanded="true"]) {
+    opacity: 0;
+  }
+}
+
+.ctpt-panel .ctpt-row {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--ctpt-row-padding);
+  width: 100%;
+  min-width: 0;
+  height: var(--ctpt-row-height);
+  margin-block-end: var(--spacing-nav-row-gap, 1px);
+  padding: 0 var(--ctpt-row-padding);
+  border-radius: var(--radius-token-row, 10px);
+  text-align: start;
+  list-style: none;
+}
+
+.ctpt-panel summary::-webkit-details-marker {
+  display: none;
+}
+
+.ctpt-panel .ctpt-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ctpt-panel .ctpt-leading {
+  display: flex;
+  align-items: center;
+  flex: none;
+  color: var(--color-text, inherit);
+}
+
+.ctpt-panel details:not([open]) > summary .ctpt-icon-openFolder,
+.ctpt-panel details[open] > summary .ctpt-icon-folder {
+  display: none;
+}
+
+.ctpt-panel .ctpt-folder > summary {
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.ctpt-panel .ctpt-tree > .ctpt-folder > summary > .ctpt-leading {
+  color: color-mix(in srgb, var(--color-accent, #3a83f7) 78%, var(--color-text, currentColor));
+}
+
+.ctpt-panel .ctpt-tree summary > .ctpt-icon-chevron {
+  width: 12px;
+  height: 12px;
+  color: var(--color-text-tertiary, inherit);
+}
+
+.ctpt-panel .ctpt-tree details:not([open]) > summary > .ctpt-icon-chevron {
+  transform: rotate(-90deg);
+}
+
+.ctpt-panel .ctpt-folder > .ctpt-children {
+  --ctpt-branch-indent: calc(var(--ctpt-icon-size) + 8px);
+  margin-inline-start: var(--ctpt-branch-indent);
+}
+
+.ctpt-panel .ctpt-children {
+  position: relative;
+}
+
+.ctpt-panel details:is(:hover, :focus-within) > .ctpt-children::before {
+  content: "";
+  position: absolute;
+  inset-block: 0;
+  inset-inline-start: calc(var(--ctpt-row-padding) + 6px - var(--ctpt-branch-indent, 0px));
+  border-inline-start: 1px dashed color-mix(in srgb, var(--color-text-tertiary, currentColor) 40%, transparent);
+  pointer-events: none;
+}
+
+.ctpt-panel .ctpt-project > .ctpt-children {
+  --ctpt-branch-indent: 0px;
+}
+
+.ctpt-panel .ctpt-thread {
+  padding-inline-start: calc(var(--ctpt-label-inset) + 8px);
+  line-height: 1.428571;
+}
+
+.ctpt-panel .ctpt-thread[aria-current="true"] {
+  color: var(--color-text-emphasis, inherit);
+}
+
+.ctpt-panel .ctpt-thread[aria-current="true"],
+.ctpt-panel .ctpt-icon-button[aria-expanded="true"],
+.ctpt-panel :is(button:not(:disabled), summary):hover {
+  background-color: var(--ctpt-hover);
+}
+
+.ctpt-panel :is(button, summary, input, select):focus-visible {
+  outline: 2px solid var(--color-ring, currentColor);
+  outline-offset: -2px;
+}
+
+.ctpt-panel .ctpt-running {
+  flex: none;
+  box-sizing: border-box;
+  width: 12px;
+  height: 12px;
+  margin-inline-end: 2px;
+  border: 1.5px solid currentColor;
+  border-inline-end-color: transparent;
+  border-radius: 50%;
+  color: var(--color-text-tertiary, inherit);
+  animation: ctpt-spin .85s linear infinite;
+}
+
+.ctpt-panel .ctpt-unread {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-inline-end: 4px;
+  border-radius: 50%;
+  background-color: var(--color-accent, var(--color-token-text-link-foreground, #3a83f7));
+}
+
+@keyframes ctpt-spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ctpt-panel .ctpt-running {
+    animation: none;
+  }
+}
+
+.ctpt-panel .ctpt-small {
+  padding: 3px 6px;
+  border-radius: var(--radius-md, 8px);
+  font-size: var(--text-sm, 13px);
+  white-space: nowrap;
+}
+
+.ctpt-panel .ctpt-small:disabled {
+  cursor: default;
+  opacity: .5;
+}
+
+.ctpt-panel :is(.ctpt-empty, .ctpt-action) {
+  margin-inline-start: var(--ctpt-label-inset);
+}
+
+.ctpt-panel :is(.ctpt-empty, .ctpt-status, .ctpt-action) {
+  min-height: 24px;
+  color: var(--color-text-tertiary, var(--color-token-description-foreground, inherit));
+  font-size: var(--text-sm, 13px);
+}
+
+.ctpt-panel :is(.ctpt-empty, .ctpt-status) {
+  box-sizing: border-box;
+  padding-block: 3px;
+}
+
+.ctpt-panel .ctpt-action {
+  margin-inline-start: calc(var(--ctpt-label-inset) - 6px);
+}
+
+.ctpt-panel .ctpt-status {
+  padding-inline: var(--ctpt-row-padding);
+}
+
+.ctpt-panel .ctpt-status:empty {
+  display: none;
+}
+
+.ctpt-panel .ctpt-organizer {
+  margin: 0 0 6px;
+  padding: var(--ctpt-row-padding);
+  border-radius: var(--radius-token-row, 10px);
+  background-color: var(--ctpt-hover);
+}
+
+.ctpt-panel .ctpt-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-block-end: 4px;
+}
+
+.ctpt-panel :is(input, select) {
+  box-sizing: border-box;
+  flex: 1 1 94px;
+  width: 0;
+  min-width: min(75px, 100%);
+  padding: 3px 4px;
+  border: 1px solid var(--color-token-border, color-mix(in srgb, currentColor 18%, transparent));
+  border-radius: var(--radius-md, 8px);
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: var(--text-sm, 13px);
+}
+
+.ctpt-panel .ctpt-visibility {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-block-start: 4px;
+  padding-inline: 6px;
+  font-size: var(--text-sm, 13px);
+}
+
+.ctpt-panel .ctpt-visibility input {
+  appearance: auto;
+  width: 14px;
+  height: 14px;
+  min-width: 0;
+  flex: none;
+  margin: 0;
+  accent-color: var(--color-accent, #3a83f7);
+}
+
+.ctpt-panel select option {
+  color: CanvasText;
+  background: Canvas;
+}
+
+.ctpt-panel .ctpt-activity-group + .ctpt-activity-group {
+  margin-block-start: 8px;
+}
+
+.ctpt-panel .ctpt-activity-label {
+  margin: 0;
+  padding: 2px var(--ctpt-row-padding);
+  color: var(--color-text-tertiary, var(--color-token-description-foreground, inherit));
+  font-size: var(--text-sm, 13px);
+  font-weight: var(--font-weight-medium, 500);
+}
+
+.ctpt-panel .ctpt-activity-list .ctpt-thread {
+  padding-inline-start: var(--ctpt-row-padding);
+}
