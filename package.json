@@ -1,6 +1,6 @@
 {
   "name": "ct-project-tree",
-  "version": "0.1.10",
+  "version": "0.1.12",
   "description": "在 Codex 原生侧栏加入可折叠的多级项目树，点击条目打开原有会话。",
   "type": "module",
   "scripts": {

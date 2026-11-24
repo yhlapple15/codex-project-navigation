@@ -492,7 +492,9 @@ export function activate({ onCleanup }) {
           return;
         }
         try {
-          await openProjectMenu(nativeMenu, event.currentTarget);
+          const result = await openProjectMenu(nativeMenu, event.currentTarget);
+          if (result === "path-copied") status.textContent = "已复制项目路径";
+          if (result === "path-copy-failed") status.textContent = "无法写入剪贴板";
         } catch (error) {
           console.warn("Codex 项目菜单打开失败", error);
           status.textContent = "项目菜单暂不可用";

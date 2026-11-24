@@ -9,16 +9,26 @@ const chineseLabels = {
   "remove-project": "移除项目…",
 };
 
-async function readItems(trigger) {
+const copyPathId = "ctpt-copy-project-path";
+
+function readProjectMenu(trigger) {
   const key = Object.keys(trigger).find((name) => name.startsWith("__reactFiber$"));
+  const row = trigger.closest("[data-app-action-sidebar-project-row]");
+  const projectId = row?.getAttribute("data-app-action-sidebar-project-id");
+  let menuProps;
+  let path;
   for (let fiber = key ? trigger[key] : null; fiber; fiber = fiber.return) {
     const props = fiber.memoizedProps;
-    if (typeof props?.getContextMenuItems === "function" && "useNativeItemDescriptors" in props) {
-      return props.getContextMenuItems();
+    if (!menuProps && typeof props?.getContextMenuItems === "function" && "useNativeItemDescriptors" in props) {
+      menuProps = props;
     }
-    if (fiber.stateNode instanceof Element && fiber.stateNode.hasAttribute("data-app-action-sidebar-project-row")) break;
+    const project = props?.project;
+    if (projectId && project?.projectId === projectId && typeof project.path === "string" && project.path.trim()) {
+      path = project.path;
+    }
+    if ((menuProps && path) || (row && fiber.stateNode === row)) break;
   }
-  return null;
+  return { menuProps, path };
 }
 
 export async function openProjectMenu(trigger, anchor) {
@@ -27,7 +37,8 @@ export async function openProjectMenu(trigger, anchor) {
     trigger.click();
     return;
   }
-  const items = await readItems(trigger);
+  const { menuProps, path } = readProjectMenu(trigger);
+  const items = await menuProps?.getContextMenuItems();
   if (!items?.length) {
     trigger.click();
     return;
@@ -52,7 +63,21 @@ export async function openProjectMenu(trigger, anchor) {
     });
   }
   const bounds = anchor.getBoundingClientRect();
-  const choice = await bridge.showContextMenu(serialize(items), { x: bounds.left, y: bounds.bottom });
+  const menuItems = serialize(items);
+  if (path) {
+    const copyItem = { id: copyPathId, label: chinese ? "复制项目路径" : "Copy project path", enabled: true };
+    const revealIndex = menuItems.findIndex(({ id }) => id === "reveal-project-folder");
+    menuItems.splice(revealIndex < 0 ? menuItems.length : revealIndex + 1, 0, copyItem);
+  }
+  const choice = await bridge.showContextMenu(menuItems, { x: bounds.left, y: bounds.bottom });
+  if (choice?.id === copyPathId && path) {
+    try {
+      await navigator.clipboard.writeText(path);
+      return "path-copied";
+    } catch {
+      return "path-copy-failed";
+    }
+  }
   const selected = actions.get(choice?.id);
   if (selected && selected.enabled !== false && !selected.nativeRole && trigger.isConnected) {
     await selected.onSelect?.();

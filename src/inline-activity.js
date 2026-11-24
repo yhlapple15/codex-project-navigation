@@ -18,22 +18,53 @@ function codexSection(nodes, key) {
     typeof node.type === "function");
 }
 
-function recentProjectSection(fiber) {
-  for (let parent = fiber.return; parent; parent = parent.return) {
-    if (!("priorityFilterEntrypoint" in (parent.memoizedProps ?? {}))) continue;
-    // React's compiled sidebar keeps the last regular section tree when Activity is open.
-    for (const candidate of [parent, parent.alternate]) {
-      for (const slots of candidate?.updateQueue?.memoCache?.data ?? []) {
-        for (const value of slots) {
-          if (!Array.isArray(value)) continue;
-          const node = codexSection(value, "unified");
-          if (node && "catalogPageScope" in node.props) return node;
-        }
+function recentProjectSection(owner) {
+  // React's compiled sidebar keeps the last regular section tree when Activity is open.
+  for (const candidate of [owner, owner.alternate]) {
+    for (const slots of candidate?.updateQueue?.memoCache?.data ?? []) {
+      for (const value of slots) {
+        if (!Array.isArray(value)) continue;
+        const node = codexSection(value, "unified");
+        if (node && "catalogPageScope" in node.props) return node;
       }
     }
-    break;
   }
   return null;
+}
+
+function withProjectSection(node, binding) {
+  if (Array.isArray(node)) {
+    const updated = node.map((child) => withProjectSection(child, binding));
+    return updated.some((child, index) => child !== node[index]) ? updated : node;
+  }
+  if (!node?.props) return node;
+  const { props } = node;
+  const sections = props.sidebarSectionNodes;
+  if (node.type === binding.sidebarType && Array.isArray(sections)) {
+    const regular = codexSection(sections, "unified");
+    if (regular) binding.regular = regular;
+    const priority = codexSection(sections, "priority");
+    if (!priority || !binding.regular || regular) return node;
+    const host = {
+      ...binding.regular,
+      type: "div",
+      key: "ctpt-inline-projects",
+      props: {
+        [projectHostMarker]: "",
+        style: { display: "contents" },
+        children: binding.regular,
+      },
+    };
+    return {
+      ...node,
+      props: {
+        ...props,
+        sidebarSectionNodes: sections.flatMap((section) => section === priority ? [host, section] : [section]),
+      },
+    };
+  }
+  const children = withProjectSection(props.children, binding);
+  return children === props.children ? node : { ...node, props: { ...props, children } };
 }
 
 export function hasInlineActivity(sidebar) {
@@ -64,57 +95,42 @@ export function createInlineActivity() {
       return;
     }
     if (!sidebar) return;
-    const fiber = sidebarFiber(sidebar);
-    if (!fiber || !("elementType" in fiber)) return;
-    const nodes = fiber.memoizedProps.sidebarSectionNodes;
+    const container = sidebarFiber(sidebar);
+    if (!container) return;
+    const nodes = container.memoizedProps.sidebarSectionNodes;
     const regular = codexSection(nodes, "unified");
     const activity = codexSection(nodes, "priority");
     if (!regular && !activity) {
       restore();
       return;
     }
+    // Activity adds a provider above the scroll container and remounts it.
+    // Patch its stable owner so the sections are composed before React mounts either view.
+    let owner = container.return;
+    while (owner && !("priorityFilterEntrypoint" in (owner.memoizedProps ?? {}))) owner = owner.return;
+    if (typeof owner?.type !== "function" || typeof container.elementType !== "function") return;
 
-    if (!binding || !binding.fibers.has(fiber)) {
+    if (!binding || !binding.fibers.has(owner)) {
       restore();
-      const original = fiber.type;
+      const original = owner.type;
       const current = {
         sidebar,
+        sidebarType: container.elementType,
         original,
         active: true,
-        fibers: new Set([fiber, fiber.alternate].filter(Boolean)),
-        regular: regular ?? recentProjectSection(fiber),
+        fibers: new Set(),
+        regular: regular ?? recentProjectSection(owner),
       };
-      current.wrapper = function projectTreeInlineActivity(props, ...rest) {
-        const sections = props.sidebarSectionNodes;
-        if (!current.active || !Array.isArray(sections)) {
-          return Reflect.apply(original, this, [props, ...rest]);
-        }
-        const normal = codexSection(sections, "unified");
-        const priority = codexSection(sections, "priority");
-        if (normal) current.regular = normal;
-        if (!priority || !current.regular) return Reflect.apply(original, this, [props, ...rest]);
-
-        const host = {
-          ...current.regular,
-          type: "div",
-          key: "ctpt-inline-projects",
-          props: {
-            [projectHostMarker]: "",
-            style: { display: "contents" },
-            children: current.regular,
-          },
-        };
-        return Reflect.apply(original, this, [{
-          ...props,
-          sidebarSectionNodes: sections.flatMap((node) => node === priority ? [host, node] : [node]),
-        }, ...rest]);
+      current.wrapper = function projectTreeInlineActivity(...args) {
+        const result = Reflect.apply(original, this, args);
+        return current.active ? withProjectSection(result, current) : result;
       };
       binding = current;
     } else {
       binding.sidebar = sidebar;
       if (regular) binding.regular = regular;
     }
-    for (const candidate of [fiber, fiber.alternate]) {
+    for (const candidate of [owner, owner.alternate]) {
       if (candidate?.type !== binding.original) continue;
       binding.fibers.add(candidate);
       candidate.type = binding.wrapper;

@@ -26,6 +26,7 @@ For subsequent launches, run `.\Start-CodexSidebar.ps1` from the same directory.
 - Expand a project to see its five most recent chats and load five more at a time.
 - Start a chat in a specific project or use the top New chat button for an independent conversation.
 - Open the built-in project menu, create a project, and see unread indicators on collapsed projects.
+- Use **Copy project path** in the project’s **⋯** menu to copy its folder path to the clipboard.
 - Hide the duplicate Projects list and show the activity timeline below your project groups.
 
 ## Update and remove
